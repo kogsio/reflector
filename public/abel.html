@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+      <meta charset="utf-8">
+      <title>Express session demo</title>
+  </head>
+  <body>
+
+    <h1>Enter message</h1>
+    <input type="text" id="message"><br>
+
+    <h1>Choose an action</h1>
+    <button type="button" onclick="relay()">Send WebSocket message</button>
+
+  </body>
+
+<script>
+
+const message  = document.getElementById('message');  
+
+let ws;
+
+function init() {
+  if (ws) {
+    ws.onerror = ws.onopen = ws.onclose = null;
+    ws.close();
+  }
+
+  ws = new WebSocket(`ws://${location.host}`);
+  ws.onerror = function () {
+    console.log('WebSocket error');
+  };
+  ws.onopen = function () {
+    console.log('WebSocket connection established');
+  };
+  ws.onclose = function () {
+    console.log('WebSocket connection closed');
+    ws = null;
+  };
+
+  ws.onmessage = function(event) {
+    console.log(event.data);
+  };
+
+};
+init();
+
+function sendMsg(msg) {
+  if (!ws) {
+    console.log('Error: no connection - no ws object!');
+  }
+
+  ws.send(msg);
+  console.log(`Sent: ${msg}`);
+};
+
+function relay(){
+  sendMsg(message.value);
+}
+
+var counter = 0;
+
+// active next topic on spacebar press
+document.body.onkeyup = function(e){
+
+  counter++;
+
+// --------------------------------------
+//    NATIVATION MENU:
+//      arrow down  (40) - start
+//      arrow right (39) - next    
+//      arrow left  (37) - back
+//      space bar   (32) - green screen
+//      arrow up    (38) -  end, Q & A
+// --------------------------------------
+
+    // space, green screen
+    if(e.keyCode == 32){      
+      sendMsg(`{"key":"Space", "keyCode": 32, "counter": ${counter}}`);
+    }
+
+    // arrow left, back
+    if(e.keyCode == 37){      
+      sendMsg(`{"key":"ArrowLeft", "keyCode": 37, "counter": ${counter}}`);
+    }
+
+    // arrow up, end - Q&A
+    if(e.keyCode == 38){      
+      sendMsg(`{"key":"ArrowUp", "keyCode": 38, "counter": ${counter}}`);
+    }
+
+    // arrow right, next
+    if(e.keyCode == 39){      
+      sendMsg(`{"key":"ArrowRight", "keyCode": 39, "counter": ${counter}}`);
+    }
+
+    // arrow down, start
+    if(e.keyCode == 40){
+      sendMsg(`{"key":"ArrowDown", "keyCode": 40, "counter": ${counter}}`);
+    } 
+
+}
+
+  
+</script>
+
+</html>

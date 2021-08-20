@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+      <meta charset="utf-8">
+      <title>Express session demo</title>
+  </head>
+  <body>
+
+    <h1>Enter message</h1>
+    <input type="text" id="message"><br>
+
+    <h1>Choose an action</h1>
+    <button type="button" onclick="relay()">Send WebSocket message</button>
+
+  </body>
+
+<script>
+
+const message  = document.getElementById('message');  
+
+let ws;
+
+function init() {
+  if (ws) {
+    ws.onerror = ws.onopen = ws.onclose = null;
+    ws.close();
+  }
+
+  ws = new WebSocket(`ws://${location.host}`);
+  ws.onerror = function () {
+    console.log('WebSocket error');
+  };
+  ws.onopen = function () {
+    console.log('WebSocket connection established');
+  };
+  ws.onclose = function () {
+    console.log('WebSocket connection closed');
+    ws = null;
+  };
+
+  ws.onmessage = function(event) {
+    var data = JSON.parse(event.data);
+    // console.log(event.data);    
+    // console.log('key:', data.key);
+    // console.log('keyCode:', data.keyCode);
+    // console.log('counter:', data.counter);        
+    document.body.dispatchEvent( new KeyboardEvent("keyup", {key: data.key, keyCode: data.keyCode }));
+
+  };
+
+};
+init();
+
+
+// handle keyboard events
+document.body.onkeyup = function(e){
+  console.log('-----------------------------------------')
+  console.log(e);
+  console.log('-----------------------------------------')  
+}
+  
+</script>
+
+</html>
